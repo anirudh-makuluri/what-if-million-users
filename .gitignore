@@ -1,0 +1,17 @@
+# Go
+*.exe
+*.out
+/bin/
+
+# Env files
+.env
+*.env
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# Mac
+.DS_Store
