@@ -12,7 +12,7 @@ Each project is self-contained. Pick any one, run it locally, and see how the ar
 
 ## Projects
 
-### [url-shortener](./url-shortener)
+### [url-shortener](./projects/url-shortener)
 > What if a simple redirect needs to handle millions of clicks?
 
 A URL shortener where every architectural decision is made with traffic in mind. Redis sits in front of DynamoDB so the database never gets hit twice for the same short code. Every redirect publishes an async Kafka event so analytics never slow down the user. Prometheus tracks cache hits, misses, and latency in real time.
