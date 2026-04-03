@@ -1,19 +1,64 @@
-# Overengineering
+# what-if-million-users
 
-Theory is not enough. Every project here uses tech that is 100% overkill 
-for the problem size, and that is the point.
+A collection of backend systems built with one question in mind:
+
+> **"What does this look like when a million users show up?"**
+
+Most tutorials build the happy path. This repo builds the production path — caching, async processing, observability, fault tolerance, and scale-aware design, from day one.
+
+Each project is self-contained. Pick any one, run it locally, and see how the architecture answers the scale question.
+
+---
 
 ## Projects
-- [URL Shortener](./projects/url-shortener) — DynamoDB, Redis, Kafka, Load Balancer
 
-## Stack
-- Go
-- Apache Kafka + Zookeeper
-- DynamoDB Local
-- Redis
-- Prometheus + Grafana
-- k6 for load testing
-- Terraform for AWS deployment
+### [url-shortener](./url-shortener)
+> What if a simple redirect needs to handle millions of clicks?
 
-## Running Locally
-docker-compose up
+A URL shortener where every architectural decision is made with traffic in mind. Redis sits in front of DynamoDB so the database never gets hit twice for the same short code. Every redirect publishes an async Kafka event so analytics never slow down the user. Prometheus tracks cache hits, misses, and latency in real time.
+
+**Stack:** Go, Gin, Redis, DynamoDB, Kafka, Prometheus, Docker Compose
+
+---
+
+## Philosophy
+
+Every project in this repo follows the same principles:
+
+**Cache aggressively** — the fastest request is one that never touches the database. Every project has a caching layer designed before the storage layer.
+
+**Never block the hot path** — analytics, logging, and side effects happen asynchronously. The user gets their response first, everything else follows.
+
+**Fail gracefully** — a Redis outage should not take down the app. A Kafka failure should not break a redirect. Dependencies fail independently.
+
+**Measure everything** — if it is not in Prometheus, it did not happen. Every project ships with metrics from day one, not as an afterthought.
+
+**Run locally, think globally** — every project runs with a single `docker-compose up`. The local setup mirrors what a production deployment would look like.
+
+---
+
+## Running Any Project
+
+Each project has its own `docker-compose.yml` and `README.md`. Navigate into the project folder and follow its setup guide.
+
+```bash
+cd url-shortener
+docker-compose up -d --build
+```
+
+---
+
+## What Is Coming Next
+
+| Project | Question |
+|---|---|
+| `rate-limiter` | What if you need to protect APIs from abuse at scale? |
+| `job-queue` | What if background tasks need to survive crashes and retries? |
+| `distributed-cache` | What if cache invalidation needs to work across regions? |
+| `leaderboard` | What if millions of users are updating scores simultaneously? |
+
+---
+
+## Author
+
+[Anirudh Makuluri](https://github.com/anirudh-makuluri)
