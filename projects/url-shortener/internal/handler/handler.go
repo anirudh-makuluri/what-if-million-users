@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/anirudh-makuluri/url-shortener/internal/cache"
-	"github.com/anirudh-makuluri/url-shortener/internal/kafka"
-	"github.com/anirudh-makuluri/url-shortener/internal/metrics"
-	"github.com/anirudh-makuluri/url-shortener/internal/store"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/cache"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/kafka"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/metrics"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -53,7 +53,6 @@ func (h *Handler) Redirect(c *gin.Context) {
 		return
 	}
 
-	
 	if record == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "short code not found"})
 		return

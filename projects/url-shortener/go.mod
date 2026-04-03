@@ -1,4 +1,4 @@
-module github.com/anirudh-makuluri/url-shortener
+module github.com/anirudh-makuluri/what-if-million-users/url-shortener
 
 go 1.26.1
 

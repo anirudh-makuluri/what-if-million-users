@@ -2,15 +2,15 @@ package main
 
 import (
 	"log"
-	"os"
 	"net/http"
+	"os"
 	"time"
 
-	"github.com/anirudh-makuluri/url-shortener/internal/cache"
-	"github.com/anirudh-makuluri/url-shortener/internal/handler"
-	"github.com/anirudh-makuluri/url-shortener/internal/kafka"
-	"github.com/anirudh-makuluri/url-shortener/internal/metrics"
-	"github.com/anirudh-makuluri/url-shortener/internal/store"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/cache"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/handler"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/kafka"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/metrics"
+	"github.com/anirudh-makuluri/what-if-million-users/url-shortener/internal/store"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
