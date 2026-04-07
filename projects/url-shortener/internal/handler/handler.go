@@ -18,12 +18,55 @@ type Handler struct {
 	producer *kafka.Producer
 }
 
+type shortenRequest struct {
+	ShortCode string `json:"short_code"`
+	LongURL   string `json:"long_url"`
+}
+
 func NewHandler(store *store.DynamoStore, cache *cache.RedisCache, producer *kafka.Producer) *Handler {
 	return &Handler{
 		store:    store,
 		cache:    cache,
 		producer: producer,
 	}
+}
+
+func (h *Handler) Shorten(c *gin.Context) {
+	ctx := context.Background()
+	var req shortenRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	// 1. Validate input
+	if req.ShortCode == "" || req.LongURL == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "short_code and long_url are required"})
+		return
+	}
+
+	// 2. Store in DynamoDB
+	record := store.URLRecord{
+		ShortCode: req.ShortCode,
+		LongURL:   req.LongURL,
+		UserID:    "anonymous", // in a real app, we'd get this from auth context
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+	}
+
+
+	if err := h.store.SaveURLIfNotExists(ctx, record); err != nil {
+		if err == store.ErrShortCodeExists {
+			c.JSON(http.StatusConflict, gin.H{"error": "short code already exists"})
+			return
+		}
+		metrics.DynamoErrors.Inc()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	metrics.DynamoWrites.Inc()
+	c.JSON(http.StatusOK, gin.H{"message": "short URL created successfully"})
 }
 
 func (h *Handler) Redirect(c *gin.Context) {
@@ -52,6 +95,8 @@ func (h *Handler) Redirect(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
+
+	metrics.DynamoReads.Inc()
 
 	if record == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "short code not found"})

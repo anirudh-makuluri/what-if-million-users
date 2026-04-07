@@ -42,6 +42,7 @@ func main() {
 	r.Use(metricsMiddleware())
 
 	r.GET("/:shortCode", h.Redirect)
+	r.POST("/shorten", h.Shorten)
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})

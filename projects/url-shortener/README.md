@@ -171,10 +171,26 @@ docker-compose exec kafka kafka-topics --create `
 
 ## Testing the Flow
 
+### Create a short URL
+
+```powershell
+Invoke-RestMethod `
+  -Method POST `
+  -Uri "http://localhost:8083/shorten" `
+  -ContentType "application/json" `
+  -Body '{"short_code":"abc123","long_url":"https://google.com"}'
+```
+
+Expected:
+
+```json
+{"message":"short URL created successfully"}
+```
+
 ### Hit the redirect endpoint
 
 ```powershell
-curl -v http://localhost:8080/abc123
+curl.exe -v "http://localhost:8083/abc123"
 ```
 
 Expected: `301 Moved Permanently` → `https://google.com`
@@ -182,7 +198,7 @@ Expected: `301 Moved Permanently` → `https://google.com`
 ### Hit it again to verify Redis cache
 
 ```powershell
-curl -v http://localhost:8080/abc123
+curl.exe -v "http://localhost:8083/abc123"
 ```
 
 Same response but served from Redis this time — no DynamoDB call.
@@ -190,7 +206,7 @@ Same response but served from Redis this time — no DynamoDB call.
 ### Health check
 
 ```powershell
-curl http://localhost:8080/health
+Invoke-RestMethod -Uri "http://localhost:8083/health"
 ```
 
 Expected: `{"status":"ok"}`
@@ -202,7 +218,7 @@ Expected: `{"status":"ok"}`
 ### View raw metrics
 
 ```powershell
-curl http://localhost:9090/metrics
+curl.exe "http://localhost:9090/metrics"
 ```
 
 ### Prometheus UI
@@ -225,6 +241,35 @@ url_shortener_request_duration_seconds
 ### Check Prometheus scrape targets
 
 Open `http://localhost:9091/targets` — the `url-shortener` job should show `UP`.
+
+---
+
+## Load Testing
+
+### Run k6 against the local app
+
+This script creates one short URL in `setup()` and then load-tests the redirect path without following the external redirect target.
+
+```powershell
+k6 run .\load-test\k6.js
+```
+
+Optional overrides:
+
+```powershell
+$env:BASE_URL="http://localhost:8083"
+$env:VUS="25"
+$env:DURATION="1m"
+k6 run .\load-test\k6.js
+```
+
+Current local reference result:
+
+- `1250` max VUs over a `55s` staged run
+- `0.00%` failed requests
+- `p95 = 122.14ms`
+- `3759.92 req/s`
+- `0` duplicate `409` responses
 
 ---
 
