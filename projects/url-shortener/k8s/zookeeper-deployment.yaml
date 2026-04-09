@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: url-shortener
+  labels:
+    app: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+      - name: zookeeper
+        image: confluentinc/cp-zookeeper:7.5.0
+        ports:
+        - containerPort: 2181
+        
+        # Zookeeper configuration via environment variables
+        env:
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "2181"
+        - name: ZOOKEEPER_TICK_TIME
+          value: "2000"
+        - name: ZOOKEEPER_DATADIR
+          value: "/var/lib/zookeeper/data"
+        - name: ZOOKEEPER_LOGS
+          value: "/var/lib/zookeeper/logs"
+        
+        # Mount persistent volumes
+        volumeMounts:
+        - name: zookeeper-data
+          mountPath: /var/lib/zookeeper/data
+        - name: zookeeper-logs
+          mountPath: /var/lib/zookeeper/logs
+        
+        # Health check using TCP socket
+        livenessProbe:
+          tcpSocket:
+            port: 2181
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+        
+        readinessProbe:
+          tcpSocket:
+            port: 2181
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 5
+        
+        # Resource limits
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "300m"
+            memory: "512Mi"
+      
+      # Define volumes using emptyDir (temporary storage tied to pod lifecycle)
+      volumes:
+      - name: zookeeper-data
+        emptyDir: {}
+      - name: zookeeper-logs
+        emptyDir: {}

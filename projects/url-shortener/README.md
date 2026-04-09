@@ -263,13 +263,23 @@ $env:DURATION="1m"
 k6 run .\load-test\k6.js
 ```
 
-Current local reference result:
+### Benchmark Results
 
+**Docker Compose (baseline):**
 - `1250` max VUs over a `55s` staged run
 - `0.00%` failed requests
 - `p95 = 122.14ms`
 - `3759.92 req/s`
 - `0` duplicate `409` responses
+
+**Kubernetes (via kubectl port-forward):**
+- `1250` max VUs over a `55s` staged run
+- `0.00%` failed requests
+- `p95 = 12.73s`
+- `139.30 req/s`
+- `0` duplicate `409` responses
+
+*Note: Kubernetes performance is slower due to networking overhead from service discovery and port-forwarding. The Docker Compose baseline is recommended for local development performance testing.*
 
 ---
 

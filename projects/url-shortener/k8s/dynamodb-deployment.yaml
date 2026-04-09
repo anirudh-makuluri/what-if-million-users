@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dynamodb-local
+  namespace: url-shortener
+  labels:
+    app: dynamodb-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dynamodb-local
+  template:
+    metadata:
+      labels:
+        app: dynamodb-local
+    spec:
+      containers:
+      - name: dynamodb-local
+        image: amazon/dynamodb-local:latest
+        ports:
+        - containerPort: 8000
+        
+        # Run DynamoDB with shared database and persistence
+        command:
+        - java
+        - "-jar"
+        - "DynamoDBLocal.jar"
+        - "-sharedDb"
+        - "-dbPath"
+        - "/data"
+        
+        # Mount the persistent volume
+        volumeMounts:
+        - name: dynamodb-data
+          mountPath: /data
+        
+        # Health check - DynamoDB Local doesn't have a standard health endpoint
+        # Using TCP socket check instead
+        livenessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 5
+        
+        # Resource limits
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+      
+      # Define the volume using the PVC
+      volumes:
+      - name: dynamodb-data
+        persistentVolumeClaim:
+          claimName: dynamodb-pvc
