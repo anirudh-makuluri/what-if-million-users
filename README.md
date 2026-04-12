@@ -15,7 +15,7 @@ Each project is self-contained. Pick any one, run it locally, and see how the ar
 ### [rate-limiting](./projects/rate-limiting)
 > What if you need to protect APIs from abuse at scale?
 
-A Go API rate limiter where Redis enforces token-bucket limits, Kafka captures async event logs, and Prometheus exposes real-time metrics. A k6 load test shows how repeated requests from the same client are rejected once the limit is reached.
+A Go API rate limiter where Redis enforces token-bucket limits with an atomic Lua script, Kafka captures async event logs, and Prometheus exposes real-time metrics. It protects APIs by allowing bursts, refilling tokens over time, and rejecting requests when a client exceeds its budget.
 
 ### [url-shortener](./projects/url-shortener)
 > What if a simple redirect needs to handle millions of clicks?
@@ -66,7 +66,6 @@ docker-compose up -d --build
 
 | Project | Question |
 |---|---|
-| `rate-limiter` | What if you need to protect APIs from abuse at scale? |
 | `job-queue` | What if background tasks need to survive crashes and retries? |
 | `distributed-cache` | What if cache invalidation needs to work across regions? |
 | `leaderboard` | What if millions of users are updating scores simultaneously? |
