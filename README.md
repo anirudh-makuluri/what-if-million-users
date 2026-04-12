@@ -12,12 +12,26 @@ Each project is self-contained. Pick any one, run it locally, and see how the ar
 
 ## Projects
 
+### [rate-limiting](./projects/rate-limiting)
+> What if you need to protect APIs from abuse at scale?
+
+A Go API rate limiter where Redis enforces token-bucket limits, Kafka captures async event logs, and Prometheus exposes real-time metrics. A k6 load test shows how repeated requests from the same client are rejected once the limit is reached.
+
 ### [url-shortener](./projects/url-shortener)
 > What if a simple redirect needs to handle millions of clicks?
 
 A URL shortener where every architectural decision is made with traffic in mind. Redis sits in front of DynamoDB so the database never gets hit twice for the same short code. Every redirect publishes an async Kafka event so analytics never slow down the user. Prometheus tracks cache hits, misses, and latency in real time.
 
-**Stack:** Go, Gin, Redis, DynamoDB, Kafka, Prometheus, Docker Compose
+## Shared Stack
+
+Most projects in this repo use the same production-ready base:
+
+- Go
+- Gin
+- Redis
+- Kafka
+- Prometheus
+- Docker Compose
 
 ---
 
