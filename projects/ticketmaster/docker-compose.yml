@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ticketmaster-postgres
+    environment:
+      POSTGRES_DB: ticketmaster
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ticketmaster-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ticketmaster"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: golang:1.26
+    container_name: ticketmaster-app
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "go mod download && go run ./cmd"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/ticketmaster?sslmode=disable
+      PORT: "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+volumes:
+  ticketmaster-postgres-data:
