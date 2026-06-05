@@ -1,0 +1,86 @@
+services:
+  raft-node-1:
+    build: .
+    hostname: raft-node-1
+    ports:
+      - "8081:8080"
+      - "7001:7000"
+    environment:
+      NODE_ID: node-1
+      RAFT_BIND: "0.0.0.0:7000"
+      RAFT_ADVERTISE: "raft-node-1:7000"
+      RAFT_DATA_DIR: /data/raft
+      RAFT_BOOTSTRAP: "true"
+      RAFT_PEERS: "node-1=raft-node-1:7000,node-2=raft-node-2:7000,node-3=raft-node-3:7000"
+      HTTP_PORT: "8080"
+    volumes:
+      - raft-node-1-data:/data/raft
+    networks:
+      - raft-config-net
+
+  raft-node-2:
+    build: .
+    hostname: raft-node-2
+    ports:
+      - "8082:8080"
+      - "7002:7000"
+    environment:
+      NODE_ID: node-2
+      RAFT_BIND: "0.0.0.0:7000"
+      RAFT_ADVERTISE: "raft-node-2:7000"
+      RAFT_DATA_DIR: /data/raft
+      RAFT_BOOTSTRAP: "false"
+      HTTP_PORT: "8080"
+    volumes:
+      - raft-node-2-data:/data/raft
+    depends_on:
+      - raft-node-1
+    networks:
+      - raft-config-net
+
+  raft-node-3:
+    build: .
+    hostname: raft-node-3
+    ports:
+      - "8083:8080"
+      - "7003:7000"
+    environment:
+      NODE_ID: node-3
+      RAFT_BIND: "0.0.0.0:7000"
+      RAFT_ADVERTISE: "raft-node-3:7000"
+      RAFT_DATA_DIR: /data/raft
+      RAFT_BOOTSTRAP: "false"
+      HTTP_PORT: "8080"
+    volumes:
+      - raft-node-3-data:/data/raft
+    depends_on:
+      - raft-node-1
+    networks:
+      - raft-config-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    depends_on:
+      - raft-node-1
+      - raft-node-2
+      - raft-node-3
+    networks:
+      - raft-config-net
+
+networks:
+  raft-config-net:
+    driver: bridge
+
+volumes:
+  raft-node-1-data:
+  raft-node-2-data:
+  raft-node-3-data:
+  prometheus-data:

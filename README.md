@@ -22,6 +22,11 @@ A Go API rate limiter where Redis enforces token-bucket limits with an atomic Lu
 
 A URL shortener where every architectural decision is made with traffic in mind. Redis sits in front of DynamoDB so the database never gets hit twice for the same short code. Every redirect publishes an async Kafka event so analytics never slow down the user. Prometheus tracks cache hits, misses, and latency in real time.
 
+### [raft-config](./projects/raft-config)
+> What if feature flags and limits must stay consistent when the leader dies?
+
+A 3-node replicated config store using HashiCorp Raft: writes replicate through the leader to a quorum, reads hit the local state machine, and Prometheus tracks terms, commit index, and leader role. Run it locally, kill the leader, and watch failover.
+
 ## Shared Stack
 
 Most projects in this repo use the same production-ready base:
@@ -66,6 +71,7 @@ docker-compose up -d --build
 
 | Project | Question |
 |---|---|
+| `raft-config` | What if config must survive leader death? *(shipped — see [projects/raft-config](./projects/raft-config))* |
 | `job-queue` | What if background tasks need to survive crashes and retries? |
 | `distributed-cache` | What if cache invalidation needs to work across regions? |
 | `leaderboard` | What if millions of users are updating scores simultaneously? |
