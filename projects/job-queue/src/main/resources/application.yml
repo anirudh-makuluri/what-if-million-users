@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: job-queue
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:sqlserver://localhost:1433;databaseName=master;encrypt=false;trustServerCertificate=true}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:YourStrong!Passw0rd}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+      validation-timeout: 5000
+      initialization-fail-timeout: 60000
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      timeout: 5s
+      repositories:
+        enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+job-queue:
+  default-max-retries: ${JOB_QUEUE_DEFAULT_MAX_RETRIES:3}
+  default-lease: ${JOB_QUEUE_DEFAULT_LEASE:60s}
+  base-retry-delay: ${JOB_QUEUE_BASE_RETRY_DELAY:15s}
+  max-retry-delay: ${JOB_QUEUE_MAX_RETRY_DELAY:10m}
+  hydration-look-ahead: ${JOB_QUEUE_HYDRATION_LOOK_AHEAD:5m}
+  recovery-batch-size: ${JOB_QUEUE_RECOVERY_BATCH_SIZE:100}
+  hydration-batch-size: ${JOB_QUEUE_HYDRATION_BATCH_SIZE:200}
+  recovery-interval-ms: ${JOB_QUEUE_RECOVERY_INTERVAL_MS:10000}
+  hydration-interval-ms: ${JOB_QUEUE_HYDRATION_INTERVAL_MS:15000}

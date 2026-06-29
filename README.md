@@ -72,7 +72,7 @@ docker-compose up -d --build
 | Project | Question |
 |---|---|
 | `raft-config` | What if config must survive leader death? *(shipped — see [projects/raft-config](./projects/raft-config))* |
-| `job-queue` | What if background tasks need to survive crashes and retries? |
+| `job-queue` | What if background tasks need to survive crashes and retries? *(shipped — see [projects/job-queue](./projects/job-queue))* |
 | `distributed-cache` | What if cache invalidation needs to work across regions? |
 | `leaderboard` | What if millions of users are updating scores simultaneously? |
 
