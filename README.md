@@ -27,14 +27,27 @@ A URL shortener where every architectural decision is made with traffic in mind.
 
 A 3-node replicated config store using HashiCorp Raft: writes replicate through the leader to a quorum, reads hit the local state machine, and Prometheus tracks terms, commit index, and leader role. Run it locally, kill the leader, and watch failover.
 
+### [job-queue](./projects/job-queue)
+> What if background tasks need to survive crashes and retries?
+
+A Spring Boot job queue where Redis coordinates ready and claimed work, MSSQL stores durable job history, and scheduled recovery loops repair expired worker leases and delayed retries.
+
+### [leaderboard](./projects/leaderboard)
+> What if millions of users are updating scores simultaneously?
+
+A Spring Boot leaderboard where Redis serves live ranking reads from a sorted set, MSSQL keeps durable player state, and cache hydration rebuilds the board after Redis loss.
+
 ## Shared Stack
 
 Most projects in this repo use the same production-ready base:
 
 - Go
 - Gin
+- Java
+- Spring Boot
 - Redis
 - Kafka
+- Microsoft SQL Server
 - Prometheus
 - Docker Compose
 
@@ -73,8 +86,8 @@ docker-compose up -d --build
 |---|---|
 | `raft-config` | What if config must survive leader death? *(shipped — see [projects/raft-config](./projects/raft-config))* |
 | `job-queue` | What if background tasks need to survive crashes and retries? *(shipped — see [projects/job-queue](./projects/job-queue))* |
+| `leaderboard` | What if millions of users are updating scores simultaneously? *(shipped — see [projects/leaderboard](./projects/leaderboard))* |
 | `distributed-cache` | What if cache invalidation needs to work across regions? |
-| `leaderboard` | What if millions of users are updating scores simultaneously? |
 
 ---
 
